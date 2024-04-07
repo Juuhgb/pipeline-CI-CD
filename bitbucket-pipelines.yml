@@ -22,7 +22,38 @@ definitions:
           - npm install --save-dev jest
           - npm run test
 
+    - step: &build
+        name: Build
+        services:
+          - docker
+        script:
+          - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+          - docker build -t coffstack-hello:production
+          - docker tag coffstack-hello:production igorramos/coffstack-hello:production
+          - docker push igorramos/coffstack-hello:production
+
+    - step: &deploy
+        name: Deploy to ECS
+        deployment: production
+        script:
+          - pipe: atlassian/aws-ecs-deploy:1.12.1
+            variables:
+              AWS_ACCESS_KEY_ID: '$AWS_ACCESS_KEY_ID'
+              AWS_SECRET_ACCESS_KEY: '$AWS_SECRET_ACCESS_KEY'
+              AWS_DEFAULT_REGION: '$AWS_DEFAULT_REGION'
+              CLUSTER_NAME: 'coffstack-cluster'
+              SERVICE_NAME: 'coffstack-hello'
+              FORCE_NEW_DEPLOYMENT: 'true'
+
 pipelines:
+  tags:
+    '**':
+      - step: *install
+      - step: *lint
+      - step: *test
+      - step: *build
+      - step: *deploy
+
   pull-requests:
     '**':
       - step: *install
