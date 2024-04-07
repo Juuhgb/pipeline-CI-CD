@@ -28,7 +28,7 @@ definitions:
           - docker
         script:
           - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-          - docker build -t coffstack-hello:production
+          - docker build -t coffstack-hello:production .
           - docker tag coffstack-hello:production igorramos/coffstack-hello:production
           - docker push igorramos/coffstack-hello:production
 
