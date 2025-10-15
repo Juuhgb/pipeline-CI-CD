@@ -4,10 +4,12 @@ on:
   push:
     branches: [ main ]
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+permissions:
+  contents: write
 
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Clonar repositório
         uses: actions/checkout@v3
@@ -20,12 +22,11 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
-      - name: Rodar testes (CI)
+      - name: Rodar testes
         run: npm test
 
       - name: Deploy no GitHub Pages (CD)
-        if: success()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: ./dist
